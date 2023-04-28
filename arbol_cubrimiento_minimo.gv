@@ -1,5 +1,0 @@
-digraph arbol_cubrimiento_minimo {
-	a -> b [label=2]
-	b -> e [label=2]
-	d -> e [label=3]
-}
