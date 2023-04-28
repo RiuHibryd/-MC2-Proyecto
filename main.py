@@ -1,3 +1,5 @@
+import tkinter as tk
+from tkinter import messagebox
 import networkx as nx
 from graphviz import Digraph
 import heapq
@@ -31,30 +33,89 @@ def dibujar_grafo(grafo, nombre):
 
     dot.view()
 
-# Ingresar los vértices y las aristas manualmente
-vertices = ['A', 'B', 'C', 'D', 'E', 'F', 'G']
-aristas = [
-    ('A', 'B', 7),
-    ('A', 'D', 5),
-    ('B', 'C', 8),
-    ('B', 'D', 9),
-    ('B', 'E', 7),
-    ('C', 'E', 5),
-    ('D', 'E', 15),
-    ('D', 'F', 6),
-    ('E', 'F', 8),
-    ('E', 'G', 9),
-    ('F', 'G', 11)
-]
+def agregar_vertice():
+    vertice = entry_vertice.get()
+    if vertice:
+        vertices.append(vertice)
+        entry_vertice.delete(0, tk.END)
+        actualizar_listas()
 
-# Crear un grafo con los vértices y aristas ingresados manualmente
+def agregar_arista():
+    origen = entry_origen.get()
+    destino = entry_destino.get()
+    peso = entry_peso.get()
+    if origen and destino and peso:
+        aristas.append((origen, destino, int(peso)))
+        entry_origen.delete(0, tk.END)
+        entry_destino.delete(0, tk.END)
+        entry_peso.delete(0, tk.END)
+        actualizar_listas()
+
+def actualizar_listas():
+    lista_vertices.delete(0, tk.END)
+    lista_aristas.delete(0, tk.END)
+
+    for v in vertices:
+        lista_vertices.insert(tk.END, v)
+
+    for a in aristas:
+        lista_aristas.insert(tk.END, f"{a[0]} - {a[1]} (Peso: {a[2]})")
+def calcular_mst():
+    if not vertices or not aristas:
+        messagebox.showerror("Error", "Por favor, ingrese al menos un vértice y una arista.")
+        return
+
+    grafo_original.add_nodes_from(vertices)
+    grafo_original.add_weighted_edges_from(aristas)
+
+    mst = kruskal_algorithm(vertices, aristas)
+    dibujar_grafo(grafo_original, 'grafo_original')
+    dibujar_grafo(mst, 'arbol_cubrimiento_minimo')
+
+    messagebox.showinfo("Información", "Se calcularon y dibujaron el grafo original y el MST.")
+
+app = tk.Tk()
+app.title("Algoritmo de Kruskal")
+
+vertices = []
+aristas = []
 grafo_original = nx.Graph()
-grafo_original.add_nodes_from(vertices)
-grafo_original.add_weighted_edges_from(aristas)
 
-# Ejecutar el algoritmo de Kruskal
-mst = kruskal_algorithm(vertices, aristas)
+label_vertice = tk.Label(app, text="Vértice:")
+entry_vertice = tk.Entry(app)
+button_vertice = tk.Button(app, text="Agregar vértice", command=agregar_vertice)
 
-# Dibujar el grafo original y el MST
-dibujar_grafo(grafo_original, 'grafo_original')
-dibujar_grafo(mst, 'arbol_cubrimiento_minimo')
+label_origen = tk.Label(app, text="Arista origen:")
+entry_origen = tk.Entry(app)
+label_destino = tk.Label(app, text="Arista destino:")
+entry_destino = tk.Entry(app)
+label_peso = tk.Label(app, text="Peso:")
+entry_peso = tk.Entry(app)
+button_arista = tk.Button(app, text="Agregar arista", command=agregar_arista)
+
+button_calcular = tk.Button(app, text="Calcular MST", command=calcular_mst)
+label_lista_vertices = tk.Label(app, text="Vértices:")
+label_lista_vertices.grid(row=5, column=0)
+lista_vertices = tk.Listbox(app)
+lista_vertices.grid(row=6, column=0, rowspan=2)
+
+label_lista_aristas = tk.Label(app, text="Aristas:")
+label_lista_aristas.grid(row=5, column=1)
+lista_aristas = tk.Listbox(app)
+lista_aristas.grid(row=6, column=1, rowspan=2)
+
+label_vertice.grid(row=0, column=0)
+entry_vertice.grid(row=0, column=1)
+button_vertice.grid(row=0, column=2)
+
+label_origen.grid(row=1, column=0)
+entry_origen.grid(row=1, column=1)
+label_destino.grid(row=2, column=0)
+entry_destino.grid(row=2, column=1)
+label_peso.grid(row=3, column=0)
+entry_peso.grid(row=3, column=1)
+button_arista.grid(row=3, column=2)
+
+button_calcular.grid(row=4, column=1)
+
+app.mainloop()
